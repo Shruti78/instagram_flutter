@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:instagram_flutter/resources/auth_methods.dart';
+import 'package:instagram_flutter/screens/home_screen.dart';
 import 'package:instagram_flutter/utils/colors.dart';
+import 'package:instagram_flutter/utils/utils.dart';
 
 import '../Widgets/text_field_input.dart';
 
@@ -14,12 +17,35 @@ class LOGINScreen extends StatefulWidget {
 class _LOGINScreenState extends State<LOGINScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
     super.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+  }
+
+  void loginUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String res = await AuthMethods().loginUser(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+
+    if (res == "success") {
+      // Navigator.of(context).pushReplacement(
+      //     MaterialPageRoute(builder: (context) => const HomeScreen()));
+
+      // Navigator approach is inapproproate in firebase
+    } else {
+      showSnackBar(res, context);
+    }
+    setState(() {
+      _isLoading = true;
+    });
   }
 
   @override
@@ -51,6 +77,7 @@ class _LOGINScreenState extends State<LOGINScreen> {
             ),
             const SizedBox(height: 30),
             InkWell(
+              onTap: loginUser,
               child: Container(
                 width: double.infinity,
                 alignment: Alignment.center,
@@ -62,7 +89,13 @@ class _LOGINScreenState extends State<LOGINScreen> {
                       ),
                     ),
                     color: blueColor),
-                child: const Text('LOG IN'),
+                child: _isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: primaryColor,
+                        ),
+                      )
+                    : const Text('LOG IN'),
               ),
             ),
             const SizedBox(height: 15),
